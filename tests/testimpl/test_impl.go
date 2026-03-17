@@ -30,6 +30,8 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 	t.Run("VerifyRuleViaAWSAPI", func(t *testing.T) {
 		ruleArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
 		region := parseRegionFromEventBridgeARN(t, ruleArn)
+		eventBusName := terraform.Output(t, ctx.TerratestTerraformOptions(), "event_bus_name")
+		scheduleExpression := terraform.Output(t, ctx.TerratestTerraformOptions(), "schedule_expression")
 
 		cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 		require.NoError(t, err)
@@ -39,14 +41,14 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 
 		output, err := client.DescribeRule(context.Background(), &eventbridge.DescribeRuleInput{
 			Name:         aws.String(ruleName),
-			EventBusName: nil,
+			EventBusName: aws.String(eventBusName),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, output)
 
 		expectedState := "ENABLED"
 		assert.Equal(t, expectedState, string(output.State), "Rule state should be ENABLED")
-		assert.Equal(t, "rate(1 hour)", *output.ScheduleExpression, "Schedule expression should match")
+		assert.Equal(t, scheduleExpression, aws.ToString(output.ScheduleExpression), "Schedule expression should match")
 
 		expectedArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
 		assert.Equal(t, expectedArn, *output.Arn, "ARN from API should match Terraform output")
@@ -55,6 +57,7 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 	t.Run("VerifyRuleAcceptsEvents", func(t *testing.T) {
 		ruleArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
 		region := parseRegionFromEventBridgeARN(t, ruleArn)
+		eventBusName := terraform.Output(t, ctx.TerratestTerraformOptions(), "event_bus_name")
 
 		cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 		require.NoError(t, err)
@@ -62,17 +65,18 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 		client := eventbridge.NewFromConfig(cfg)
 
 		detail, _ := json.Marshal(map[string]string{"source": "terratest", "action": "verify"})
-		_, err = client.PutEvents(context.Background(), &eventbridge.PutEventsInput{
+		putEventsOutput, err := client.PutEvents(context.Background(), &eventbridge.PutEventsInput{
 			Entries: []eventbridgetypes.PutEventsRequestEntry{
 				{
 					Source:       aws.String("terratest.verify"),
 					DetailType:   aws.String("TerratestVerification"),
 					Detail:       aws.String(string(detail)),
-					EventBusName: nil,
+					EventBusName: aws.String(eventBusName),
 				},
 			},
 		})
 		require.NoError(t, err)
+		assert.Zero(t, putEventsOutput.FailedEntryCount, "PutEvents should not report failed entries")
 	})
 }
 
@@ -90,6 +94,8 @@ func TestComposableCompleteReadonly(t *testing.T, ctx types.TestContext) {
 	t.Run("VerifyRuleViaAWSAPI", func(t *testing.T) {
 		ruleArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
 		region := parseRegionFromEventBridgeARN(t, ruleArn)
+		eventBusName := terraform.Output(t, ctx.TerratestTerraformOptions(), "event_bus_name")
+		scheduleExpression := terraform.Output(t, ctx.TerratestTerraformOptions(), "schedule_expression")
 
 		cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 		require.NoError(t, err)
@@ -99,14 +105,14 @@ func TestComposableCompleteReadonly(t *testing.T, ctx types.TestContext) {
 
 		output, err := client.DescribeRule(context.Background(), &eventbridge.DescribeRuleInput{
 			Name:         aws.String(ruleName),
-			EventBusName: nil,
+			EventBusName: aws.String(eventBusName),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, output)
 
 		expectedState := "ENABLED"
 		assert.Equal(t, expectedState, string(output.State), "Rule state should be ENABLED")
-		assert.Equal(t, "rate(1 hour)", *output.ScheduleExpression, "Schedule expression should match")
+		assert.Equal(t, scheduleExpression, aws.ToString(output.ScheduleExpression), "Schedule expression should match")
 
 		expectedArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
 		assert.Equal(t, expectedArn, *output.Arn, "ARN from API should match Terraform output")

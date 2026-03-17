@@ -134,4 +134,6 @@ module "event_rule" {
 | <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the EventBridge rule. |
 | <a name="output_name"></a> [name](#output\_name) | The name of the EventBridge rule. |
 | <a name="output_tags_all"></a> [tags\_all](#output\_tags\_all) | Map of tags assigned to the resource, including those inherited from the provider. |
+| <a name="output_event_bus_name"></a> [event\_bus\_name](#output\_event\_bus\_name) | The event bus name used for tests. |
+| <a name="output_schedule_expression"></a> [schedule\_expression](#output\_schedule\_expression) | The configured schedule expression for test assertions. |
 <!-- END_TF_DOCS -->

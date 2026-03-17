@@ -29,3 +29,13 @@ output "tags_all" {
   description = "Map of tags assigned to the resource, including those inherited from the provider."
   value       = module.event_rule.tags_all
 }
+
+output "event_bus_name" {
+  description = "The event bus name used for tests."
+  value       = coalesce(var.event_bus_name, "default")
+}
+
+output "schedule_expression" {
+  description = "The configured schedule expression for test assertions."
+  value       = var.schedule_expression
+}
