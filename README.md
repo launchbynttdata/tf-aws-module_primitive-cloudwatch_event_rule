@@ -45,12 +45,6 @@ pre-commit install --hook-type commit-msg
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.5 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.14 |
 
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.100.0 |
-
 ## Modules
 
 No modules.
@@ -65,14 +59,14 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_description"></a> [description](#input\_description) | The description of the rule. | `string` | `null` | no |
+| <a name="input_event_bus_name"></a> [event\_bus\_name](#input\_event\_bus\_name) | The name or ARN of the event bus to associate with this rule. If omitted, the default event bus is used. | `string` | `null` | no |
+| <a name="input_event_pattern"></a> [event\_pattern](#input\_event\_pattern) | The event pattern described as a JSON object. At least one of schedule\_expression or event\_pattern is required. | `string` | `null` | no |
+| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Used to delete managed rules created by AWS. | `bool` | `false` | no |
 | <a name="input_name"></a> [name](#input\_name) | The name of the rule. If omitted, Terraform will assign a random, unique name. Conflicts with name\_prefix. | `string` | `null` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Creates a unique name beginning with the specified prefix. Conflicts with name. Must be 38 characters or less. | `string` | `null` | no |
-| <a name="input_schedule_expression"></a> [schedule\_expression](#input\_schedule\_expression) | The scheduling expression. For example, cron(0 20 * * ? *) or rate(5 minutes). At least one of schedule\_expression or event\_pattern is required. Can only be used on the default event bus. | `string` | `null` | no |
-| <a name="input_event_pattern"></a> [event\_pattern](#input\_event\_pattern) | The event pattern described as a JSON object. At least one of schedule\_expression or event\_pattern is required. | `string` | `null` | no |
-| <a name="input_event_bus_name"></a> [event\_bus\_name](#input\_event\_bus\_name) | The name or ARN of the event bus to associate with this rule. If omitted, the default event bus is used. | `string` | `null` | no |
-| <a name="input_description"></a> [description](#input\_description) | The description of the rule. | `string` | `null` | no |
 | <a name="input_role_arn"></a> [role\_arn](#input\_role\_arn) | The Amazon Resource Name (ARN) associated with the role that is used for target invocation. | `string` | `null` | no |
-| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Used to delete managed rules created by AWS. | `bool` | `false` | no |
+| <a name="input_schedule_expression"></a> [schedule\_expression](#input\_schedule\_expression) | The scheduling expression. For example, cron(0 20 * * ? *) or rate(5 minutes). At least one of schedule\_expression or event\_pattern is required. Can only be used on the default event bus. | `string` | `null` | no |
 | <a name="input_state"></a> [state](#input\_state) | State of the rule. Valid values are DISABLED, ENABLED, and ENABLED\_WITH\_ALL\_CLOUDTRAIL\_MANAGEMENT\_EVENTS. ENABLED\_WITH\_ALL\_CLOUDTRAIL\_MANAGEMENT\_EVENTS cannot be used with schedule\_expression. | `string` | `"ENABLED"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Map of tags to assign to the resource. | `map(string)` | `{}` | no |
 
@@ -80,8 +74,8 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_id"></a> [id](#output\_id) | The ID of the resource (same as the name). |
 | <a name="output_arn"></a> [arn](#output\_arn) | The ARN of the rule. |
+| <a name="output_id"></a> [id](#output\_id) | The ID of the resource (same as the name). |
 | <a name="output_name"></a> [name](#output\_name) | The name of the rule. |
 | <a name="output_tags_all"></a> [tags\_all](#output\_tags\_all) | Map of tags assigned to the resource, including those inherited from the provider. |
 <!-- END_TF_DOCS -->
