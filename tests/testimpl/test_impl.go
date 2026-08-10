@@ -18,9 +18,9 @@ import (
 
 func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 	t.Run("VerifyTerraformOutputs", func(t *testing.T) {
-		ruleName := terraform.Output(t, ctx.TerratestTerraformOptions(), "name")
-		ruleArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
-		ruleId := terraform.Output(t, ctx.TerratestTerraformOptions(), "id")
+		ruleName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "name")
+		ruleArn := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "arn")
+		ruleId := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "id")
 
 		assert.Equal(t, ruleName, ruleId, "id should equal name for EventBridge rules")
 		assert.NotEmpty(t, ruleArn, "ARN should be set")
@@ -28,16 +28,16 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 	})
 
 	t.Run("VerifyRuleViaAWSAPI", func(t *testing.T) {
-		ruleArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
+		ruleArn := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "arn")
 		region := parseRegionFromEventBridgeARN(t, ruleArn)
-		eventBusName := terraform.Output(t, ctx.TerratestTerraformOptions(), "event_bus_name")
-		scheduleExpression := terraform.Output(t, ctx.TerratestTerraformOptions(), "schedule_expression")
+		eventBusName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "event_bus_name")
+		scheduleExpression := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "schedule_expression")
 
 		cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 		require.NoError(t, err)
 
 		client := eventbridge.NewFromConfig(cfg)
-		ruleName := terraform.Output(t, ctx.TerratestTerraformOptions(), "name")
+		ruleName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "name")
 
 		output, err := client.DescribeRule(context.Background(), &eventbridge.DescribeRuleInput{
 			Name:         aws.String(ruleName),
@@ -50,14 +50,14 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 		assert.Equal(t, expectedState, string(output.State), "Rule state should be ENABLED")
 		assert.Equal(t, scheduleExpression, aws.ToString(output.ScheduleExpression), "Schedule expression should match")
 
-		expectedArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
+		expectedArn := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "arn")
 		assert.Equal(t, expectedArn, *output.Arn, "ARN from API should match Terraform output")
 	})
 
 	t.Run("VerifyRuleAcceptsEvents", func(t *testing.T) {
-		ruleArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
+		ruleArn := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "arn")
 		region := parseRegionFromEventBridgeARN(t, ruleArn)
-		eventBusName := terraform.Output(t, ctx.TerratestTerraformOptions(), "event_bus_name")
+		eventBusName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "event_bus_name")
 
 		cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 		require.NoError(t, err)
@@ -82,9 +82,9 @@ func TestComposableComplete(t *testing.T, ctx types.TestContext) {
 
 func TestComposableCompleteReadonly(t *testing.T, ctx types.TestContext) {
 	t.Run("VerifyTerraformOutputs", func(t *testing.T) {
-		ruleName := terraform.Output(t, ctx.TerratestTerraformOptions(), "name")
-		ruleArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
-		ruleId := terraform.Output(t, ctx.TerratestTerraformOptions(), "id")
+		ruleName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "name")
+		ruleArn := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "arn")
+		ruleId := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "id")
 
 		assert.Equal(t, ruleName, ruleId, "id should equal name for EventBridge rules")
 		assert.NotEmpty(t, ruleArn, "ARN should be set")
@@ -92,16 +92,16 @@ func TestComposableCompleteReadonly(t *testing.T, ctx types.TestContext) {
 	})
 
 	t.Run("VerifyRuleViaAWSAPI", func(t *testing.T) {
-		ruleArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
+		ruleArn := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "arn")
 		region := parseRegionFromEventBridgeARN(t, ruleArn)
-		eventBusName := terraform.Output(t, ctx.TerratestTerraformOptions(), "event_bus_name")
-		scheduleExpression := terraform.Output(t, ctx.TerratestTerraformOptions(), "schedule_expression")
+		eventBusName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "event_bus_name")
+		scheduleExpression := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "schedule_expression")
 
 		cfg, err := config.LoadDefaultConfig(context.Background(), config.WithRegion(region))
 		require.NoError(t, err)
 
 		client := eventbridge.NewFromConfig(cfg)
-		ruleName := terraform.Output(t, ctx.TerratestTerraformOptions(), "name")
+		ruleName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "name")
 
 		output, err := client.DescribeRule(context.Background(), &eventbridge.DescribeRuleInput{
 			Name:         aws.String(ruleName),
@@ -114,7 +114,7 @@ func TestComposableCompleteReadonly(t *testing.T, ctx types.TestContext) {
 		assert.Equal(t, expectedState, string(output.State), "Rule state should be ENABLED")
 		assert.Equal(t, scheduleExpression, aws.ToString(output.ScheduleExpression), "Schedule expression should match")
 
-		expectedArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
+		expectedArn := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "arn")
 		assert.Equal(t, expectedArn, *output.Arn, "ARN from API should match Terraform output")
 	})
 }
